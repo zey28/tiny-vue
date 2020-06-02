@@ -1,8 +1,9 @@
 import Dep from  './dep.js'
 
+// 1 将整个data作为参数传入value
 function Observer(value) {
   this.value = value
-  this.dep = new Dep()
+  this.dep = new Dep()  // 收集依赖的
   // TODO: support Array
   this.walk(value)
 }
@@ -19,7 +20,7 @@ function Observer(value) {
 
 Observer.prototype.walk = function (obj) {
   var keys = Object.keys(obj)
-  for (var i = 0, l = keys.length; i < l; i++) {
+  for (var i = 0, l = keys.length; i < l; i++) {  // data最外层的key依次交由connver转化
     this.convert(keys[i], obj[keys[i]])
   }
 }
@@ -64,36 +65,25 @@ export function observe (value, vm) {
  * @param {String} key
  * @param {*} val
  */
-export function defineReactive (obj, key, val) {
-  var dep = new Dep()
-
-  var property = Object.getOwnPropertyDescriptor(obj, key)
-  if (property && property.configurable === false) {
-    return
-  }
-
-  var getter = property && property.get
-  var setter = property && property.set
-
+export function defineReactive (obj, key, val) {  //核心代码,采用订阅发布模式在get收集依赖,set触发依赖.
+  var dep = new Dep()  //每个key都有一个dep与之对应
+ 
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter () {
-      console.log(`observer.get`)
-      var value = getter ? getter.call(obj) : val
+ 
+      var value =  val
       if (Dep.target) {
-        dep.depend()
+        dep.depend()  // 将全局Dep.target赋值的watch作为 观察者收集到dep中.
       }
       return value
     },
     set: function reactiveSetter (newVal) {
-      console.log(`observer.set:${newVal}`)
-      var value = getter ? getter.call(obj) : val
-      if (newVal === value) {
-        return
-      }
+
+      var value =  val  //原始值
       val = newVal
-      dep.notify()
+      dep.notify() //触发依赖
     }
   })
 }
