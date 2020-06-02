@@ -43,7 +43,7 @@ Dep.prototype.removeSub = function (sub) {
  */
 
 Dep.prototype.depend = function () {
-  Dep.target.addDep(this)
+  Dep.target.addDep(this)  // 3 这一步也很高明, 让彼此相互收集对方, 像双向链表一样
 }
 
 /**
