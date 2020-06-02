@@ -18,8 +18,8 @@ export default function (Vue) {
 
   Vue.prototype._initData = function () {
 
-		var dataFn = this.$options.data
-    var data = this._data = dataFn ? ( typeof dataFn == 'function' ? dataFn() : dataFn ) : {}
+    var dataFn = this.$options.data
+    var data = this._data = dataFn ? ( typeof dataFn == 'function' ? dataFn() : dataFn ) : {}   // 0 对外暴露的data字段
 
     var keys = Object.keys(data)
     var i, key
@@ -29,7 +29,7 @@ export default function (Vue) {
       this._proxy(key)
     }
     // observe data
-    observe(data, this)
+    observe(data, this)  // 4 此处也是使用Object.defineProperty ,将data变成可监听的.
   }
 
 	Vue.prototype._proxy = function (key) {
@@ -38,14 +38,14 @@ export default function (Vue) {
 		// be called by child scopes via
 		// prototype inheritance.
 		var self = this
-		Object.defineProperty(self, key, {
+		Object.defineProperty(self, key, {  // 1 将data对象的属性,绑定到vue实例自身上,只是充当一个代理作用. 
 			configurable: true,
 			enumerable: true,
 			get: function proxyGetter () {
 				return self._data[key]
 			},
 			set: function proxySetter (val) {
-				self._data[key] = val
+				self._data[key] = val  //2 当在vue实例中调用this.x会触发此处,进而修改原data数据
 			}
 		})
   }
